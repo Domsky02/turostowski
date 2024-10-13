@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1.6;
+    background-color: beige;
+    color: #333;
+    padding: 20px;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+/* Header i Footer na pełną szerokość */
+header, footer {
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+header {
+    background-color: #ff6f61;
+    color: white;
+    text-align: center;
+    font-size: 24px;
+    border-bottom: 5px solid #e65c50;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+    
+}
+
+footer {
+    background-color: #ff6f61;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    border-top: 5px solid#e65c50;
+    margin-top: 28px;
+}
+
+/* Styl kontenera */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Nagłówki */
+h1, h2, h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    font-size: 36px;
+    color: #ff6f61;
+    background: linear-gradient(90deg, rgba(255,111,97,1) 0%, rgba(255,180,120,1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px dotted #ff6f61;
+}
+
+h2 {
+    font-size: 28px;
+    color: #ff6f61;
+    border-bottom: 2px dashed #ff6f61;
+    padding-bottom: 5px;
+    margin-top: 30px;
+}
+
+h3 {
+    font-size: 22px;
+    color: #333;
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+    border: 2px solid #ff6f61;
+}
+
+/* Akapity */
+p {
+    font-size: 18px;
+    text-align: justify;
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 15px;
+    border-left: 5px solid #ff6f61;
+    padding-left: 15px;
+}
+
+/* Lista zakupów */
+ul {
+    list-style-type: square;
+    margin: 15px 0;
+    padding-left: 20px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-image: url('https://png.pngtree.com/png-vector/20240522/ourmid/pngtree-tangled-paper-surface-a-texture-of-wrinkled-sheets-png-image_12336536.png');
+    background-size: cover;
+}
+
+li {
+    padding-left: 20px;
+}
+
+/* Obramowanie obrazka */
+.image-container {
+    text-align: center;
+    margin-bottom: 20px;
+    border: 5px double #ff6f61;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Przycisk */
+button {
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+    background-color: #e65c50;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        padding-left: 0px;
+        padding-right: 0px;
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
+
+    p {
+        font-size: 16px;
+    }
+
+    .image-container {
+        padding: 5px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}
