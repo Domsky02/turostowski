@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Puzzle Game with Leaflet</title>
+    <link rel="stylesheet" href="leaflet-1.8.0/leaflet.css" />
+    <script src="leaflet-1.8.0/leaflet-src.js"></script>
+    <script src="leaflet-1.8.0/leaflet-providers.js"></script>
+    <script src="leaflet-1.8.0/leaflet-image.js"></script>
+
+    <style>
+        #map {
+            width: 600px;
+            height: 300px;
+            border: 1px solid black;
+        }
+        .puzzle-piece {
+            position: relative;
+            width: 150px; /* Ustal szerokość kawałka */
+            height: 75px; /* Ustal wysokość kawałka */
+            cursor: pointer;
+            border: 1px solid #999;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            display: inline-block; /* Ustaw kafelki w linii */
+            margin: 2px; /* Odstęp między kafelkami */
+        }
+        #puzzle-container {
+            position: relative;
+            width: 600px; /* Szerokość planszy */
+            height: 300px; /* Wysokość planszy */
+            border: 1px solid black;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <button id="getLocation">Get Current Location</button>
+    <button id="saveButton">Save Raster Map</button>
+    <button id="shuffleButton">Shuffle Pieces</button>
+    <div id="puzzle-container"></div>
+
+    <script>
+        let map = L.map('map').setView([53.430127, 14.564802], 18);
+        L.tileLayer.provider('Esri.WorldImagery').addTo(map);
+        let pieces = [];
+        const rows = 4;
+        const cols = 4;
+
+        document.getElementById("saveButton").addEventListener("click", function() {
+            console.log("Save button clicked");
+            if (typeof leafletImage !== 'function') {
+                console.error("leafletImage is not defined");
+                return;
+            }
+            leafletImage(map, function (err, canvas) {
+                if (err) {
+                    console.error("Error creating image:", err);
+                    return;
+                }
+                console.log("Image created successfully");
+                createPuzzle(canvas);
+            });
+        });
+
+        function createPuzzle(canvas) {
+            const pieceWidth = canvas.width / cols;
+            const pieceHeight = canvas.height / rows;
+
+            // Tworzenie kawałków puzzli
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const pieceCanvas = document.createElement('canvas');
+                    pieceCanvas.width = pieceWidth;
+                    pieceCanvas.height = pieceHeight;
+                    const context = pieceCanvas.getContext('2d');
+                    context.drawImage(
+                        canvas,
+                        x * pieceWidth,
+                        y * pieceHeight,
+                        pieceWidth,
+                        pieceHeight,
+                        0,
+                        0,
+                        pieceWidth,
+                        pieceHeight
+                    );
+
+                    const piece = document.createElement('div');
+                    piece.className = 'puzzle-piece';
+                    piece.style.backgroundImage = `url(${pieceCanvas.toDataURL()})`;
+                    piece.dataset.position = `${x},${y}`; // Zapamiętaj pozycję kawałka
+                    piece.draggable = true;
+
+                    piece.addEventListener('dragstart', dragStart);
+                    document.getElementById('puzzle-container').appendChild(piece);
+                    pieces.push(piece);
+                }
+            }
+
+            shufflePieces(); // Tasuj kawałki po stworzeniu
+        }
+
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.position);
+        }
+
+        document.getElementById('puzzle-container').addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        document.getElementById('puzzle-container').addEventListener('drop', (e) => {
+            e.preventDefault();
+            const position = e.dataTransfer.getData('text/plain').split(',');
+            const piece = pieces.find(p => p.dataset.position === position.join(','));
+
+            if (piece) {
+                const rect = e.target.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const offsetY = e.clientY - rect.top;
+
+                piece.style.position = 'absolute';
+                piece.style.left = `${Math.floor(offsetX / piece.offsetWidth) * piece.offsetWidth}px`;
+                piece.style.top = `${Math.floor(offsetY / piece.offsetHeight) * piece.offsetHeight}px`;
+            }
+        });
+
+        function shufflePieces() {
+            // Prosta metoda tasowania kawałków
+            for (let i = pieces.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const temp = pieces[i].dataset.position;
+                pieces[i].dataset.position = pieces[j].dataset.position;
+                pieces[j].dataset.position = temp;
+                pieces[i].style.order = j; // Ustawienie w kolejności
+                pieces[j].style.order = i; // Ustawienie w kolejności
+            }
+        }
+
+        document.getElementById("getLocation").addEventListener("click", function(event) {
+            if (!navigator.geolocation) {
+                console.log("No geolocation.");
+            }
+
+            navigator.geolocation.getCurrentPosition(position => {
+                console.log(position);
+                let lat = position.coords.latitude;
+                let lon = position.coords.longitude;
+
+                map.setView([lat, lon]);
+            }, positionError => {
+                console.error(positionError);
+            });
+        });
+    </script>
+</body>
+</html>
