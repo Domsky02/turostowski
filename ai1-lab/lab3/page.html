@@ -14,128 +14,45 @@
             height: 300px;
             border: 1px solid black;
         }
-        .puzzle-piece {
-            position: relative;
-            width: 150px; /* Ustal szerokość kawałka */
-            height: 75px; /* Ustal wysokość kawałka */
-            cursor: pointer;
-            border: 1px solid #999;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-            display: inline-block; /* Ustaw kafelki w linii */
-            margin: 2px; /* Odstęp między kafelkami */
-        }
+
         #puzzle-container {
             position: relative;
-            width: 600px; /* Szerokość planszy */
-            height: 300px; /* Wysokość planszy */
-            border: 1px solid black;
+            width: 600px;
+            height: 300px;
             margin-top: 20px;
+            border: 1px solid black;
+        }
+
+        .puzzle-piece {
+            position: absolute;
+            width: 150px;
+            height: 75px;
+            cursor: pointer;
+            border: 1px solid #999;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <button id="getLocation">Get Current Location</button>
-    <button id="saveButton">Save Raster Map</button>
-    <button id="shuffleButton">Shuffle Pieces</button>
+    <button id="saveButton">Generate Puzzle</button>
     <div id="puzzle-container"></div>
 
     <script>
         let map = L.map('map').setView([53.430127, 14.564802], 18);
         L.tileLayer.provider('Esri.WorldImagery').addTo(map);
+        const img = new Image();
+        const canvas = document.createElement('canvas');
+        const stage = canvas.getContext('2d');
         let pieces = [];
-        const rows = 4;
-        const cols = 4;
-
-        document.getElementById("saveButton").addEventListener("click", function() {
-            console.log("Save button clicked");
-            if (typeof leafletImage !== 'function') {
-                console.error("leafletImage is not defined");
-                return;
-            }
-            leafletImage(map, function (err, canvas) {
-                if (err) {
-                    console.error("Error creating image:", err);
-                    return;
-                }
-                console.log("Image created successfully");
-                createPuzzle(canvas);
-            });
-        });
-
-        function createPuzzle(canvas) {
-            const pieceWidth = canvas.width / cols;
-            const pieceHeight = canvas.height / rows;
-
-            // Tworzenie kawałków puzzli
-            for (let y = 0; y < rows; y++) {
-                for (let x = 0; x < cols; x++) {
-                    const pieceCanvas = document.createElement('canvas');
-                    pieceCanvas.width = pieceWidth;
-                    pieceCanvas.height = pieceHeight;
-                    const context = pieceCanvas.getContext('2d');
-                    context.drawImage(
-                        canvas,
-                        x * pieceWidth,
-                        y * pieceHeight,
-                        pieceWidth,
-                        pieceHeight,
-                        0,
-                        0,
-                        pieceWidth,
-                        pieceHeight
-                    );
-
-                    const piece = document.createElement('div');
-                    piece.className = 'puzzle-piece';
-                    piece.style.backgroundImage = `url(${pieceCanvas.toDataURL()})`;
-                    piece.dataset.position = `${x},${y}`; // Zapamiętaj pozycję kawałka
-                    piece.draggable = true;
-
-                    piece.addEventListener('dragstart', dragStart);
-                    document.getElementById('puzzle-container').appendChild(piece);
-                    pieces.push(piece);
-                }
-            }
-
-            shufflePieces(); // Tasuj kawałki po stworzeniu
-        }
-
-        function dragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.dataset.position);
-        }
-
-        document.getElementById('puzzle-container').addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-
-        document.getElementById('puzzle-container').addEventListener('drop', (e) => {
-            e.preventDefault();
-            const position = e.dataTransfer.getData('text/plain').split(',');
-            const piece = pieces.find(p => p.dataset.position === position.join(','));
-
-            if (piece) {
-                const rect = e.target.getBoundingClientRect();
-                const offsetX = e.clientX - rect.left;
-                const offsetY = e.clientY - rect.top;
-
-                piece.style.position = 'absolute';
-                piece.style.left = `${Math.floor(offsetX / piece.offsetWidth) * piece.offsetWidth}px`;
-                piece.style.top = `${Math.floor(offsetY / piece.offsetHeight) * piece.offsetHeight}px`;
-            }
-        });
-
-        function shufflePieces() {
-            // Prosta metoda tasowania kawałków
-            for (let i = pieces.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                const temp = pieces[i].dataset.position;
-                pieces[i].dataset.position = pieces[j].dataset.position;
-                pieces[j].dataset.position = temp;
-                pieces[i].style.order = j; // Ustawienie w kolejności
-                pieces[j].style.order = i; // Ustawienie w kolejności
-            }
-        }
+        let puzzleWidth;
+        let puzzleHeight;
+        let pieceWidth;
+        let pieceHeight;
+        let currentPiece;
+        let currentDropPiece;
+        let mouse;
 
         document.getElementById("getLocation").addEventListener("click", function(event) {
             if (!navigator.geolocation) {
@@ -152,6 +69,199 @@
                 console.error(positionError);
             });
         });
+
+        document.getElementById("saveButton").addEventListener("click", function() {
+            console.log("Save button clicked");
+            if (typeof leafletImage !== 'function') {
+                console.error("leafletImage is not defined");
+                return;
+            }
+            leafletImage(map, function (err, imgCanvas) {
+                if (err) {
+                    console.error("Error creating image:", err);
+                    return;
+                }
+                console.log("Image created successfully");
+                img.src = imgCanvas.toDataURL();
+                img.onload = function() {
+                    initPuzzle(imgCanvas);
+                };
+            });
+        });
+
+        function initPuzzle(canvas) {
+            pieces = [];
+            mouse = { x: 0, y: 0 };
+            currentPiece = null;
+            currentDropPiece = null;
+            puzzleWidth = canvas.width;
+            puzzleHeight = canvas.height;
+            pieceWidth = Math.floor(puzzleWidth / 4); 
+            pieceHeight = Math.floor(puzzleHeight / 4);
+
+            setCanvas();
+            buildPieces();
+        }
+
+        function setCanvas() {
+            canvas.width = puzzleWidth;
+            canvas.height = puzzleHeight;
+            canvas.style.border = "1px solid black";
+            document.getElementById('puzzle-container').appendChild(canvas);
+        }
+
+        function buildPieces() {
+            let i;
+            let piece;
+            let xPos = 0;
+            let yPos = 0;
+
+            for (i = 0; i < 16; i++) {
+                piece = {};
+                piece.sx = xPos;
+                piece.sy = yPos;
+                pieces.push(piece);
+                xPos += pieceWidth;
+                if (xPos >= puzzleWidth) {
+                    xPos = 0;
+                    yPos += pieceHeight;
+                }
+            }
+            shufflePuzzle();
+        }
+
+        function shufflePuzzle() {
+            pieces = shuffleArray(pieces);
+            let xPos = 0;
+            let yPos = 0;
+
+            stage.clearRect(0, 0, puzzleWidth, puzzleHeight);
+
+            for (const piece of pieces) {
+                piece.xPos = xPos;
+                piece.yPos = yPos;
+                stage.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, xPos, yPos, pieceWidth, pieceHeight);
+                stage.strokeRect(xPos, yPos, pieceWidth, pieceHeight);
+                xPos += pieceWidth;
+                if (xPos >= puzzleWidth) {
+                    xPos = 0;
+                    yPos += pieceHeight;
+                }
+            }
+            document.onpointerdown = onPuzzleClick;
+        }
+
+        function checkPieceClicked() {
+            for (const piece of pieces) {
+                if (mouse.x < piece.xPos || mouse.x > piece.xPos + pieceWidth || mouse.y < piece.yPos || mouse.y > piece.yPos + pieceHeight) {
+
+                } else {
+                    return piece;
+                }
+            }
+            return null;
+        }
+
+        function updatePuzzle(e) {
+            currentDropPiece = null;
+
+            if (e.layerX || e.layerX === 0) {
+                mouse.x = e.layerX - canvas.offsetLeft;
+                mouse.y = e.layerY - canvas.offsetTop;
+            } else if (e.offsetX || e.offsetX === 0) {
+                mouse.x = e.offsetX - canvas.offsetLeft;
+                mouse.y = e.offsetY - canvas.offsetTop;
+            }
+
+            stage.clearRect(0, 0, puzzleWidth, puzzleHeight);
+
+            for (const piece of pieces) {
+                if (piece === currentPiece) {
+                    continue;
+                }
+                stage.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, piece.xPos, piece.yPos, pieceWidth, pieceHeight);
+                stage.strokeRect(piece.xPos, piece.yPos, pieceWidth, pieceHeight);
+
+                if (currentDropPiece == null) {
+                    if (mouse.x < piece.xPos || mouse.x > piece.xPos + pieceWidth || mouse.y < piece.yPos || mouse.y > piece.yPos + pieceHeight) {
+
+                    } else {
+                        currentDropPiece = piece;
+                        stage.save();
+                        stage.globalAlpha = 0.4;
+                        stage.fillStyle = "#009900";
+                        stage.fillRect(currentDropPiece.xPos, currentDropPiece.yPos, pieceWidth, pieceHeight);
+                        stage.restore();
+                    }
+                }
+            }
+
+            stage.save();
+            stage.globalAlpha = 0.6;
+            stage.drawImage(img, currentPiece.sx, currentPiece.sy, pieceWidth, pieceHeight, mouse.x - pieceWidth / 2, mouse.y - pieceHeight / 2, pieceWidth, pieceHeight);
+            stage.restore();
+            stage.strokeRect(mouse.x - pieceWidth / 2, mouse.y - pieceHeight / 2, pieceWidth, pieceHeight);
+        }
+
+        function onPuzzleClick(e) {
+            if (e.layerX || e.layerX === 0) {
+                mouse.x = e.layerX - canvas.offsetLeft;
+                mouse.y = e.layerY - canvas.offsetTop;
+            } else if (e.offsetX || e.offsetX === 0) {
+                mouse.x = e.offsetX - canvas.offsetLeft;
+                mouse.y = e.offsetY - canvas.offsetTop;
+            }
+
+            currentPiece = checkPieceClicked();
+
+            if (currentPiece !== null) {
+                stage.clearRect(currentPiece.xPos, currentPiece.yPos, pieceWidth, pieceHeight);
+                stage.save();
+                stage.globalAlpha = 0.9;
+                stage.drawImage(img, currentPiece.sx, currentPiece.sy, pieceWidth, pieceHeight, mouse.x - pieceWidth / 2, mouse.y - pieceHeight / 2, pieceWidth, pieceHeight);
+                stage.restore();
+                document.onpointermove = updatePuzzle;
+                document.onpointerup = pieceDropped;
+            }
+        }
+
+        function pieceDropped(e) {
+            document.onpointermove = null;
+            document.onpointerup = null;
+
+            if (currentDropPiece !== null) {
+                let tmp = { xPos: currentPiece.xPos, yPos: currentPiece.yPos };
+                currentPiece.xPos = currentDropPiece.xPos;
+                currentPiece.yPos = currentDropPiece.yPos;
+                currentDropPiece.xPos = tmp.xPos;
+                currentDropPiece.yPos = tmp.yPos;
+            }
+
+            resetPuzzleAndCheckWin();
+        }
+
+        function resetPuzzleAndCheckWin() {
+            stage.clearRect(0, 0, puzzleWidth, puzzleHeight);
+            let gameWin = true;
+
+            for (const piece of pieces) {
+                stage.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, piece.xPos, piece.yPos, pieceWidth, pieceHeight);
+                stage.strokeRect(piece.xPos, piece.yPos, pieceWidth, pieceHeight);
+
+                if (piece.xPos !== piece.sx || piece.yPos !== piece.sy) {
+                    gameWin = false;
+                }
+            }
+
+            if (gameWin) {
+                setTimeout(() => { alert("Puzzle completed!"); }, 500);
+            }
+        }
+
+        function shuffleArray(o) {
+            for (let j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+            return o;
+        }
     </script>
 </body>
 </html>
