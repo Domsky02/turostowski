@@ -1,0 +1,132 @@
+﻿body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f5f5f7;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+    header h1 {
+        font-size: 2.5rem;
+        color: #000;
+    }
+.search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+    .search input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .search button {
+        padding: 10px 20px;
+        font-size: 1rem;
+        border: none;
+        background-color: #007aff;
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+        .search button:hover {
+            background-color: #005bb5;
+        }
+
+.weather-section {
+    margin-top: 20px;
+}
+
+    .weather-section h2 {
+        font-size: 1.5rem;
+        border-bottom: 2px solid #007aff;
+        padding-bottom: 5px;
+    }
+
+    .weather-section div {
+        padding: 10px 0;
+    }
+
+    .weather-section .weather-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+
+        background-color: #f9f9f9;
+    }
+
+    .weather-section .weather-card img,
+    .weather-section .hourly-card img {
+        width: 140px;
+        height: 140px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        padding: 10px;
+        display: block;
+        margin-right: 10px;
+    }
+
+
+    .weather-section .temp {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #007aff;
+    }
+
+    .weather-section .hourly-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        background-color: #f9f9f9;
+    }
+
+        .weather-section .hourly-card img {
+            width: 40px;
+            height: 40px;
+        }
+
+    .weather-section .hourly-time {
+        font-size: 1rem;
+        color: #555;
+    }
+
+    .weather-section .hourly-temp {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #007aff;
+    }
+
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: #777;
+}
