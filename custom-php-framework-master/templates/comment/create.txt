@@ -1,0 +1,6 @@
+<h1>Dodaj komentarz</h1>
+<form action="<?= $router->generatePath('comment-create', ['postId' => $postId]) ?>" method="post">
+    <label for="content">Treść komentarza:</label>
+    <textarea id="content" name="content" required></textarea>
+    <button type="submit">Dodaj komentarz</button>
+</form>
