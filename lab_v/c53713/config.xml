@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="pl.edu.zut.wi.td53713" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Dominik 53713</name>
+    <description>Weather App</description>
+    <author email="td53713@zut.edu.pl" href="https://www.wi.zut.edu.pl">
+        Dominik Turostowski
+    </author>
+    <content src="weather.html" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <platform name="electron">
+    <icon src="res/electron/app_icon.png" />
+    <preference name="ElectronSettingsFilePath" value="res/electron/settings.json" />
+    </platform>
+</widget>

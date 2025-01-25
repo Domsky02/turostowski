@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Weather App</h1>
+        </header>
+        <main>
+            <div class="search">
+                <input type="text" id="cityInput" placeholder="Wprowadź nazwę miasta">
+                <button id="weatherBtn">Pogoda</button>
+            </div>
+            <div id="currentWeather" class="weather-section">
+                <h2>Bieżąca pogoda</h2>
+                <div id="currentWeatherData"></div>
+            </div>
+            <div id="hourlyForecast" class="weather-section">
+                <h2>Prognoza godzinowa na dzisiaj</h2>
+                <div id="hourlyForecastData"></div>
+            </div>
+            <div id="forecast" class="weather-section">
+                <h2>Prognoza pogody na 5 dni</h2>
+                <div id="forecastData"></div>
+            </div>
+        </main>
+        <footer>
+            <p>Dominik Turostowski</p>
+        </footer>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+</html>
